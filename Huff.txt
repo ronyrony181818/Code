@@ -1,0 +1,108 @@
+#include <iostream>
+#include <queue>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Node {
+public:
+    char ch;
+    int freq;
+    Node* left;
+    Node* right;
+
+    Node(char character, int frequency) {
+        ch = character;
+        freq = frequency;
+        left = right = nullptr;
+    }
+};
+
+class Compare {
+public:
+    bool operator()(Node* left, Node* right) {
+        return left->freq > right->freq;
+    }
+};
+
+class HuffmanCoding {
+public:
+    void generateCodes(Node* root, string code, unordered_map<char, string>& huffmanCode) {
+        if (!root) return;
+        if (!root->left && !root->right) {
+            huffmanCode[root->ch] = code;
+        }
+        generateCodes(root->left, code + "0", huffmanCode);
+        generateCodes(root->right, code + "1", huffmanCode);
+    }
+
+    string huffmanEncode(const string& text, unordered_map<char, string>& huffmanCode) {
+        string encodedText = "";
+        for (char ch : text) {
+            encodedText += huffmanCode[ch];
+        }
+        return encodedText;
+    }
+
+    string huffmanDecode(Node* root, const string& encodedText) {
+        string decodedText = "";
+        Node* currentNode = root;
+        for (char bit : encodedText) {
+            if (bit == '0')
+                currentNode = currentNode->left;
+            else
+                currentNode = currentNode->right;
+            if (!currentNode->left && !currentNode->right) {
+                decodedText += currentNode->ch;
+                currentNode = root;
+            }
+        }
+        return decodedText;
+    }
+
+    void huffmanCoding(const string& text) {
+        unordered_map<char, int> freq;
+        for (char ch : text) {
+            freq[ch]++;
+        }
+
+        priority_queue<Node*, vector<Node*>, Compare> pq;
+        for (auto pair : freq) {
+            pq.push(new Node(pair.first, pair.second));
+        }
+
+        while (pq.size() > 1) {
+            Node* left = pq.top(); pq.pop();
+            Node* right = pq.top(); pq.pop();
+            int sum = left->freq + right->freq;
+            Node* newNode = new Node('\0', sum);
+            newNode->left = left;
+            newNode->right = right;
+            pq.push(newNode);
+        }
+
+        Node* root = pq.top();
+        unordered_map<char, string> huffmanCode;
+        generateCodes(root, "", huffmanCode);
+
+        string encodedText = huffmanEncode(text, huffmanCode);
+
+        cout << "Huffman Codes: \n";
+        for (auto pair : huffmanCode) {
+            cout << pair.first << " : " << pair.second << endl;
+        }
+
+        cout << "\nEncoded Text: " << encodedText << endl;
+
+        string decodedText = huffmanDecode(root, encodedText);
+        cout << "\nDecoded Text: " << decodedText << endl;
+    }
+};
+
+int main() {
+    string text = "anurag";
+    HuffmanCoding huffman;
+    huffman.huffmanCoding(text);
+    return 0;
+}

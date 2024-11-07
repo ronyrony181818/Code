@@ -1,0 +1,47 @@
+#include<iostream>
+#include<bits/stdc++.h>
+using namespace std;
+
+int non_recursive (int n) {
+    if (n<=1) {
+        cout<<"--> "<<0;
+        return 0;
+    } else {
+        int a = 0, b = 1, c, i = 2;
+        cout<<"--> "<<a<<" "<<b<<" ";
+        if (n == 2)
+            return 1;
+
+        while(i < n) {
+            c = a + b;
+            cout<<c<<" ";
+
+            a = b;
+            b = c;
+            i++;
+        }
+        return c;
+    }
+}
+
+int recursive (int n) {
+    if (n <= 1) {
+        return n;
+    }
+
+    return (recursive(n-1) + recursive(n-2));
+}
+
+int main() {
+    int n = 10;
+
+    int result_1 = non_recursive(n);
+    cout<<endl;
+    cout<<n<<"th number using iteration: "<<result_1<<endl;
+    
+    int result_2 = recursive(n-1);
+    cout<<endl;
+    cout<<n<<"th number using recursion: "<<result_2<<endl;
+
+    return 0;
+}
