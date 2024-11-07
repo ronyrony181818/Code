@@ -1,0 +1,55 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler,LabelEncoder
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+df=pd.read_csv('Churn_Modelling.csv')
+
+df.head()
+
+df=df.drop(['Surname','CustomerId','RowNumber'],axis=1)
+
+df
+
+x=df.drop('Exited',axis=1)
+y=df['Exited']
+
+x['Geography']=LabelEncoder().fit_transform(x['Geography'])
+x['Gender']=LabelEncoder().fit_transform(x['Gender'])
+
+x
+
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=42)
+
+scaler=StandardScaler()
+x_train=scaler.fit_transform(x_train)
+x_test=scaler.fit_transform(x_test)
+
+import tensorflow
+
+from tensorflow import keras
+from keras.layers import *
+
+# Initialize and build model
+from keras.models import Sequential
+model=Sequential()
+model.add(Dense(64,activation='relu',input_shape=(x_train.shape[1],)))
+model.add(Dropout(0.3))
+model.add(Dense(32,activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(16,activation='relu'))
+model.add(Dense(1,activation='sigmoid'))
+
+model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+
+history = model.fit(x_train, y_train, epochs=50, batch_size=32, validation_split=0.2, verbose=1)
+
+y_pred = (model.predict(x_test) > 0.5).astype("int32")
+
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+print(f'Accuracy Score: {accuracy}')
+print('Confusion Matrix:')
+print(conf_matrix)
